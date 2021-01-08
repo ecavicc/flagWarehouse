@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block header %}
+    {% block title %}Explore{% endblock %}
+{% endblock %}
+{% block content %}
+    <div class="card mx-5 my-2">
+        <div class="card-body">
+            <h5 class="card-title">Search flags</h5>
+            <form method="get" id="form">
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label class="mb-1" for="since_datetime">Since</label>
+                        <input class="form-control form-control-sm" type="datetime-local" id="since_datetime">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="mb-1" for="until_datetime">Until</label>
+                        <input class="form-control form-control-sm" type="datetime-local" id="until_datetime">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="mb-1" for="status_select">Status</label>
+                        <select class="custom-select custom-select-sm" id="status_select">
+                            <option value="" selected>All</option>
+                            {% for status in statuses %}
+                                <option>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="mb-1" for="response_select">Response</label>
+                        <select class="custom-select custom-select-sm" id="response_select">
+                            <option value="" selected>All</option>
+                            {% for response in responses %}
+                                <option>{{ response }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row align-items-end">
+                    <div class="col-md-3">
+                        <label class="mb-1" for="exploit_name_select">Exploit</label>
+                        <select class="custom-select custom-select-sm" id="exploit_name_select">
+                            <option value="" selected>All</option>
+                            {% for exp in exploits_names %}
+                                <option>{{ exp }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="mb-1" for="username_select">Username</label>
+                        <select class="custom-select custom-select-sm" id="username_select">
+                            <option value="" selected>All</option>
+                            {% for usr in usernames %}
+                                <option>{{ usr }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="mb-1" for="team_ip_select">Team</label>
+                        <select class="custom-select custom-select-sm" id="team_ip_select">
+                            <option value="" selected>All</option>
+                            {% for ip in team_ips %}
+                                <option>{{ ip }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mt-3">
+                        <button class="btn btn-primary btn-sm" type="button" id="refresh">Show flags</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="mx-5">
+        <table
+                data-classes="table table-bordered table-hover table-striped table-sm"
+                class="text-center"
+                id="table"
+                data-show-columns="true"
+                data-sort-name="time"
+                data-sort-order="desc"
+                data-pagination="true"
+                data-buttons-prefix="btn-sm btn">
+            <thead>
+            <tr>
+                <th data-field="flag">Flag</th>
+                <th data-field="username" data-sortable="true">User</th>
+                <th data-field="exploit_name" data-sortable="true">Exploit Name</th>
+                <th data-field="team_ip" data-sortable="true">Team ip</th>
+                <th data-field="time" data-sortable="true">Timestamp</th>
+                <th data-field="status" data-sortable="true">Status</th>
+                <th data-field="response" data-sortable="true">Response</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        $('#status_select').on('change', function () {
+            if ($('#status_select').val() === '{{ db_nsub }}') {
+                $('#response_select').val('');
+                $('#response_select').prop('disabled', true);
+            } else {
+                $('#response_select').prop('disabled', false);
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/fontawesome.all.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-table.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/explore.js') }}"></script>
+{% endblock %}
