@@ -10,11 +10,15 @@
                 <div class="row mb-2">
                     <div class="col-md-3">
                         <label class="mb-1" for="since_datetime">Since</label>
-                        <input class="form-control form-control-sm" type="datetime-local" id="since_datetime">
+                        <input class="form-control form-control-sm" type="datetime-local" id="since_datetime"
+                               pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" placeholder="YYYY-MM-DDThh:mm"
+                               required>
                     </div>
                     <div class="col-md-3">
                         <label class="mb-1" for="until_datetime">Until</label>
-                        <input class="form-control form-control-sm" type="datetime-local" id="until_datetime">
+                        <input class="form-control form-control-sm" type="datetime-local" id="until_datetime"
+                               pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" placeholder="YYYY-MM-DDThh:mm"
+                               required>
                     </div>
                     <div class="col-md-3">
                         <label class="mb-1" for="status_select">Status</label>
