@@ -5,6 +5,7 @@ import math
 import os
 import os.path
 import re
+import signal
 import subprocess
 import time
 from datetime import datetime
@@ -94,8 +95,8 @@ def run_exploit(exploit: str, ip: str, round_duration: int, server_url: str, tok
                                          'team_ip': ip,
                                          'time': t_stamp})
                 requests.post(server_url + '/api/upload_flags',
-                                  headers={'X-Auth-Token': token},
-                                  json=msg)
+                              headers={'X-Auth-Token': token},
+                              json=msg)
     p.stdout.close()
     return_code = p.poll()
     timer.cancel()
@@ -106,6 +107,7 @@ def run_exploit(exploit: str, ip: str, round_duration: int, server_url: str, tok
 
 
 def main(args):
+    global pool
     print(BANNER)
 
     server_url = args.server_url
@@ -122,22 +124,30 @@ def main(args):
     logging.info('Client correctly configured.')
 
     while True:
-        logging.info('Starting new round.')
-        s_time = time.time()
-        scripts = [os.path.join(exploit_directory, s) for s in os.listdir(exploit_directory) if
-                   os.path.isfile(os.path.join(exploit_directory, s))]
+        try:
+            logging.info('Starting new round.')
+            s_time = time.time()
+            scripts = [os.path.join(exploit_directory, s) for s in os.listdir(exploit_directory) if
+                       os.path.isfile(os.path.join(exploit_directory, s))]
 
-        pool = Pool(len(scripts) * len(teams))
+            original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
+            pool = Pool(len(scripts) * len(teams))
+            signal.signal(signal.SIGINT, original_sigint_handler)
 
-        for script in scripts:
-            for team in teams:
-                pool.apply_async(run_exploit, (script, team, round_duration, server_url, token, flag_format, user))
-        pool.close()
-        pool.join()
+            for script in scripts:
+                for team in teams:
+                    pool.apply_async(run_exploit, (script, team, round_duration, server_url, token, flag_format, user))
+            pool.close()
+            pool.join()
 
-        duration = time.time() - s_time
-        if duration < round_duration:
-            time.sleep(round_duration - duration)
+            duration = time.time() - s_time
+            if duration < round_duration:
+                logging.debug(f'Sleeping for {round(duration, 1)} seconds')
+                time.sleep(round_duration - duration)
+        except KeyboardInterrupt:
+            logging.info('Caught KeyboardInterrupt. Bye!')
+            pool.terminate()
+            break
 
 
 if __name__ == '__main__':
