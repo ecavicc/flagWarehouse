@@ -5,13 +5,12 @@ import math
 import os
 import os.path
 import re
-import signal
 import subprocess
-import sys
 import time
 from datetime import datetime
 from multiprocessing import Pool
 from threading import Timer
+
 import requests
 
 BANNER = '''
@@ -72,7 +71,6 @@ def parse_args():
 
 
 def run_exploit(exploit: str, ip: str, round_duration: int, server_url: str, token: str, pattern, user: str):
-
     def timer_out(process):
         timer.cancel()
         process.kill()
@@ -95,7 +93,7 @@ def run_exploit(exploit: str, ip: str, round_duration: int, server_url: str, tok
                                          'exploit_name': os.path.basename(exploit),
                                          'team_ip': ip,
                                          'time': t_stamp})
-                r = requests.post(server_url + '/api/upload_flags',
+                requests.post(server_url + '/api/upload_flags',
                                   headers={'X-Auth-Token': token},
                                   json=msg)
     p.stdout.close()
@@ -108,7 +106,6 @@ def run_exploit(exploit: str, ip: str, round_duration: int, server_url: str, tok
 
 
 def main(args):
-
     print(BANNER)
 
     server_url = args.server_url
