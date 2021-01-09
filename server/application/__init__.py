@@ -12,6 +12,7 @@ def create_app():
     app = Flask('flagWarehouse', instance_relative_config=False)
 
     log = logging.getLogger('werkzeug')
+    log.setLevel(logging.INFO)
     log.disabled = True
 
     app.config.from_object('config.Config')
