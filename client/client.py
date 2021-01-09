@@ -120,6 +120,9 @@ def main(args):
     r = None
     try:
         r = requests.get(server_url + '/api/get_config', headers={'X-Auth-Token': token})
+        if r.status_code == 403:
+            logging.error('Wrong authorization token.')
+            logging.info('Exiting...')
     except requests.exceptions.RequestException as e:
         logging.error('Could not connect to the server: ' + e.__class__.__name__)
         logging.info('Exiting...')
