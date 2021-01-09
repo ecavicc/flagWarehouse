@@ -138,8 +138,26 @@ def main(args):
             requests.head(server_url)
             logging.info('Starting new round.')
             s_time = time.time()
-            scripts = [os.path.join(exploit_directory, s) for s in os.listdir(exploit_directory) if
-                       os.path.isfile(os.path.join(exploit_directory, s))]
+
+            try:
+                scripts = [os.path.join(exploit_directory, s) for s in os.listdir(exploit_directory) if
+                           os.path.isfile(os.path.join(exploit_directory, s))]
+            except FileNotFoundError:
+                logging.error('The directory specified does not exist.')
+                logging.info('Exiting...')
+                sys.exit(0)
+            except PermissionError:
+                logging.error('You do not have the necessary permissions to use this directory.')
+                logging.info('Exiting')
+                sys.exit(0)
+
+            if scripts:
+                logging.info(f'Running {len(scripts)} exploits.')
+            else:
+                logging.info('No exploits found: retrying in 15 seconds')
+                time.sleep(15)
+                continue
+
 
             original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
             pool = Pool(len(scripts) * len(teams))
