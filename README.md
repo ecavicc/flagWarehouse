@@ -1,6 +1,8 @@
 # flagWarehouse
 Flag submission system for Attack/Defense CTFs.
 
+![Web interface](img/server.png)
+
 * [Server](#server)
     * [Installation](#installation)
     * [Configuration](#configuration)
