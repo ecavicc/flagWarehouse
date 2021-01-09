@@ -27,3 +27,7 @@
 #charts {
     height: calc(100% - 47px);
 }
+
+#table td:first-child {
+    font-family: monospace;
+}
