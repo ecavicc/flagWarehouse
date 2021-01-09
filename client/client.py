@@ -7,6 +7,7 @@ import os.path
 import re
 import signal
 import subprocess
+import sys
 import time
 from datetime import datetime
 from multiprocessing import Pool
@@ -116,7 +117,13 @@ def main(args):
     exploit_directory = args.exploit_directory
 
     logging.info('Connecting to the flagWarehouse server...')
-    r = requests.get(server_url + '/api/get_config', headers={'X-Auth-Token': token})
+    r = None
+    try:
+        r = requests.get(server_url + '/api/get_config', headers={'X-Auth-Token': token})
+    except requests.exceptions.RequestException as e:
+        logging.error('Could not connect to the server: ' + e.__class__.__name__)
+        logging.info('Exiting...')
+        sys.exit(0)
     config = r.json()
     flag_format = re.compile(config['format'])
     round_duration = config['round']
@@ -125,6 +132,7 @@ def main(args):
 
     while True:
         try:
+            requests.head(server_url)
             logging.info('Starting new round.')
             s_time = time.time()
             scripts = [os.path.join(exploit_directory, s) for s in os.listdir(exploit_directory) if
@@ -148,6 +156,10 @@ def main(args):
             logging.info('Caught KeyboardInterrupt. Bye!')
             pool.terminate()
             break
+        except requests.exceptions.RequestException:
+            logging.error('Could not communicate with the server: retrying in 5 seconds.')
+            time.sleep(5)
+            continue
 
 
 if __name__ == '__main__':
