@@ -127,7 +127,6 @@ def main(args):
     while True:
         try:
             requests.head(server_url)
-            logging.info('Starting new round.')
             s_time = time.time()
 
             try:
@@ -143,7 +142,7 @@ def main(args):
                 sys.exit(0)
 
             if scripts:
-                logging.info(f'Running {len(scripts)} exploits.')
+                logging.info(f'Starting new round. Running {len(scripts)} exploits.')
             else:
                 logging.info('No exploits found: retrying in 15 seconds')
                 time.sleep(15)
