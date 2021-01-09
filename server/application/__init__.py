@@ -1,6 +1,6 @@
+import logging
 import os
 import threading
-import logging
 
 import werkzeug
 from flask import Flask

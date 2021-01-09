@@ -60,15 +60,6 @@ def parse_args():
                         required=True,
                         help='The directory that holds all your exploits')
 
-    # parser.add_argument('-i', '--interpreter',
-    #                     type=str,
-    #                     metavar='COMMAND',
-    #                     required=False,
-    #                     help='''Since shebangs are not a thing in Windows,
-    #                     you can specify which interpreter to use.
-    #                     Obviously, all the exploits will have to be
-    #                     written in the same language''')
-
     return parser.parse_args()
 
 
@@ -157,7 +148,6 @@ def main(args):
                 logging.info('No exploits found: retrying in 15 seconds')
                 time.sleep(15)
                 continue
-
 
             original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
             pool = Pool(len(scripts) * len(teams))

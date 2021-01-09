@@ -46,7 +46,6 @@ let barsOptions = {
 };
 
 
-
 let chBarsExploits = new Chart($('#chBarsExploits'), {
     type: 'bar',
     data: {
@@ -140,8 +139,8 @@ let updateAll = function () {
                     chBarsExploits.data.datasets[1].data[idxError].y = item.error;
                 } else {
                     chBarsExploits.data.labels.splice(i, 0, item.name);
-                    let acceptedObj = {x: item.name, y:item.accepted}
-                    let errorObj = {x: item.name, y:item.error}
+                    let acceptedObj = {x: item.name, y: item.accepted}
+                    let errorObj = {x: item.name, y: item.error}
                     chBarsExploits.data.datasets[0].data.splice(i, 0, acceptedObj);
                     chBarsExploits.data.datasets[1].data.splice(i, 0, errorObj);
                 }
@@ -183,8 +182,8 @@ let updateAll = function () {
                     chBarsTeams.data.datasets[1].data[idxError].y = item.error;
                 } else {
                     chBarsTeams.data.labels.splice(i, 0, item.name);
-                    let acceptedObj = {x: item.name, y:item.accepted}
-                    let errorObj = {x: item.name, y:item.error}
+                    let acceptedObj = {x: item.name, y: item.accepted}
+                    let errorObj = {x: item.name, y: item.error}
                     chBarsTeams.data.datasets[0].data.splice(i, 0, acceptedObj);
                     chBarsTeams.data.datasets[1].data.splice(i, 0, errorObj);
                 }

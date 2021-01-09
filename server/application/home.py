@@ -80,7 +80,7 @@ def chart_data():
             FROM flags
             WHERE time >= ?;
             ''', (expiration_s, start_s, start_s)
-        )
+                    )
         doughnut_row = cur.fetchone()
         cur.execute('''
             SELECT
@@ -117,7 +117,7 @@ def chart_data():
                 SUM(status LIKE 'NOT_SUBMITTED' AND time < ?) AS expired
             FROM flags
             ''', (expiration_s, expiration_s)
-        )
+                    )
         doughnut_row = cur.fetchone()
         cur.execute('''
             SELECT
