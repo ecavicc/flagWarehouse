@@ -16,15 +16,17 @@ let chDoughnut = new Chart($('#chDoughnut'), {
         aspectRatio: 1.5,
         responsive: true,
         cutoutPercentage: 50,
-        legend: {
-            position: 'bottom',
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    boxWidth: 20
+                }
+            },
             labels: {
-                boxWidth: 20
+                pointStyle: 'circle',
+                usePointStyle: true
             }
-        },
-        labels: {
-            pointStyle: 'circle',
-            usePointStyle: true
         }
     }
 });
@@ -32,11 +34,13 @@ let chDoughnut = new Chart($('#chDoughnut'), {
 let barsOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    legend: {
-        display: false,
-        position: 'top',
-        labels: {
-            boxWidth: 20
+    plugins: {
+        legend: {
+            display: false,
+            position: 'top',
+            labels: {
+                boxWidth: 20
+            }
         }
     }
 };
