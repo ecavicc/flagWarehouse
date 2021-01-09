@@ -12,8 +12,8 @@ Flag submission system for Attack/Defense CTFs.
 
 ## Server
 The server is a Flask web application that uses SQLite as its database engine. It stores flags and sends them
-periodically to the verification server of the competition. It also provides an easy interface that shows some stats and
-makes it possible to explore the database.
+periodically to the verification server of the competition. It also provides an easy to use interface that shows some
+stats and makes it possible to explore the database.
 
 ### Installation
 ```
@@ -63,10 +63,16 @@ for example, running this app *as is* on [Heroku](https://heroku.com) would prob
 For any other modifications, follow the guidelines for Flask deployment of your platform of choice.
 
 ## Client
-The client is a simple Python program that runs all the programs (both scripts and binaries) in a specific directory.
+The client is a simple Python script that runs all the programs (both scripts and binaries) in a specific directory.
 The programs *need* to run only one time on one target (the target IP address is passed via argv by the client). For a
-basic template, please refer to [example.py](client/exploits/example.py)
+basic template, please refer to [example.py](client/exploits/example.py).
 
-When it starts, the client automatically fetches the configuration from the server (targets, round duration etc.). When
+When it starts, the client automatically fetches the configuration from the server (targets, round duration etc.). When 
 the exploits print something on the standard output, the client reads the output in real time and extracts the flags
-using the regex fetched from the server.
+using the regex fetched from the server; as soon as the flags are found, they are sent (along with other data like the
+username and the timestamp) to the [flagWarehouse server](server).
+
+Right now, the module `requests` is still needed and listed in [requirements.txt](client/requirements.txt). In the
+future, I might use `urllib` in order to avoid external dependencies.
+
+For a list and explanation of the possible options, please refer to the CLI help.
