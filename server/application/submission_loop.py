@@ -51,9 +51,13 @@ def loop(app: Flask):
             queue_length = queue.qsize()
             try:
                 while i < min(current_app.config['SUB_LIMIT'], queue_length):
-                    flag = queue.get()
-                    res = requests.post(current_app.config['SUB_URL'],
-                                        data={'team_token': current_app.config['TEAM_TOKEN'], 'flag': flag}).text
+                    # TODO: make it better, just for testing
+                    flags = []
+                    for _ in range(100):
+                        flags.append(queue.get())
+                    res = requests.put(current_app.config['SUB_URL'],
+                                       headers={'X-Team_Token': current_app.config['TEAM_TOKEN']},
+                                       json=flags).text
                     # executemany() would be better, but it's fine like this.
                     if current_app.config['SUB_ERROR'] in res.lower():
                         cursor.execute('''
