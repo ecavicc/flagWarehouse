@@ -75,10 +75,12 @@ def run_exploit(exploit: str, ip: str, round_duration: int, server_url: str, tok
     while True:
         output = p.stdout.readline().decode().strip()
         if output == '' and p.poll() is not None:
+            logging.warning(f'Exploit {os.path.basename(exploit)} has no output')
             break
         if output:
             flags = pattern.findall(output)
             if flags:
+                logging.info(f"Found {len(flags)} flags in exploit {os.path.basename(exploit)}'s output")
                 msg = {'username': user, 'flags': []}
                 t_stamp = datetime.now().replace(microsecond=0).isoformat(sep=' ')
                 for flag in flags:
@@ -89,6 +91,8 @@ def run_exploit(exploit: str, ip: str, round_duration: int, server_url: str, tok
                 requests.post(server_url + '/api/upload_flags',
                               headers={'X-Auth-Token': token},
                               json=msg)
+            else:
+                logging.info(f"Found no flags in exploit {os.path.basename(exploit)}'s output")
     p.stdout.close()
     return_code = p.poll()
     timer.cancel()
