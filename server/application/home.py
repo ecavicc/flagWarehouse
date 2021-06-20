@@ -76,10 +76,10 @@ def chart_data():
                 SUM(server_response LIKE 'SUCCESS') as accepted,
                 SUM(server_response LIKE 'ERROR') as error,
                 SUM(status LIKE 'NOT_SUBMITTED' AND time >= ?) AS queued,
-                SUM(status LIKE 'NOT_SUBMITTED' AND time < ?) AS expired
+                SUM(server_response LIKE 'EXPIRED') AS expired
             FROM flags
             WHERE time >= ?;
-            ''', (expiration_s, start_s, start_s)
+            ''', (expiration_s, start_s)
                     )
         doughnut_row = cur.fetchone()
         cur.execute('''
@@ -205,7 +205,7 @@ def explore_get_flags():
         statement = '{} WHERE {}'.format(statement, ' AND '.join(where))
 
     cur = db.get_db().cursor()
-    current_app.logger.debug(f"executing query {statement}")
+    # current_app.logger.debug(f"executing query {statement}")
     cur.execute(statement)
     rows = cur.fetchall()
     objects_list = []
@@ -220,5 +220,5 @@ def explore_get_flags():
         d['response'] = row[6]
         objects_list.append(d)
 
-    current_app.logger.debug(f"sending {len(rows)} rows.")
+    # current_app.logger.debug(f"sending {len(rows)} rows.")
     return jsonify(objects_list)

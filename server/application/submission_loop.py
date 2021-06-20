@@ -38,15 +38,14 @@ def loop(app: Flask):
         queue = OrderedSetQueue()
         while True:
             s_time = time.time()
+            expiration_time = (datetime.now() - timedelta(seconds=current_app.config['FLAG_ALIVE'])).replace(microsecond=0).isoformat(sep=' ')
             cursor = database.cursor()
             cursor.execute('''
             SELECT flag
             FROM flags
-            WHERE time > ? AND status = ?
+            WHERE time > ? AND status = ? AND server_response IS NULL
             ORDER BY time DESC 
-            ''', (
-                (datetime.now() - timedelta(seconds=current_app.config['FLAG_ALIVE'])).replace(microsecond=0).isoformat(
-                    sep=' '), current_app.config['DB_NSUB']))
+            ''', (expiration_time, current_app.config['DB_NSUB']))
             for flag in cursor.fetchall():
                 queue.put(flag[0])
             i = 0
@@ -61,7 +60,8 @@ def loop(app: Flask):
 
                     res = requests.put(current_app.config['SUB_URL'],
                                        headers={'X-Team-Token': current_app.config['TEAM_TOKEN']},
-                                       json=flags)
+                                       json=flags,
+                                       timeout=(current_app.config['SUB_INTERVAL'] / current_app.config['SUB_LIMIT']))
                     j_res = []
 
                     # Check if the gameserver sent a response about the flags or if it sent an error
@@ -73,12 +73,21 @@ def loop(app: Flask):
 
                     # executemany() would be better, but it's fine like this.
                     for item in j_res:
-                        if current_app.config['SUB_ERROR'].lower() in item['msg'].lower():
+                        if (current_app.config['SUB_INVALID'].lower() in item['msg'].lower() or
+                                current_app.config['SUB_YOUR_OWN'].lower() in item['msg'].lower() or
+                                current_app.config['SUB_STOLEN'].lower() in item['msg'].lower() or
+                                current_app.config['SUB_NOP'].lower() in item['msg'].lower()):
                             cursor.execute('''
                             UPDATE flags
                             SET status = ?, server_response = ?
                             WHERE flag = ?
                             ''', (current_app.config['DB_SUB'], current_app.config['DB_ERR'], item['flag']))
+                        elif current_app.config['SUB_OLD'].lower() in item['msg'].lower():
+                            cursor.execute('''
+                            UPDATE flags
+                            SET status = ?, server_response = ?
+                            WHERE flag = ?
+                            ''', (current_app.config['DB_SUB'], current_app.config['DB_EXP'], item['flag']))
                         elif current_app.config['SUB_ACCEPTED'].lower() in item['msg'].lower():
                             cursor.execute('''
                             UPDATE flags
@@ -86,6 +95,12 @@ def loop(app: Flask):
                             WHERE flag = ?
                             ''', (current_app.config['DB_SUB'], current_app.config['DB_SUCC'], item['flag']))
                         i += 1
+                # At the end, update status as EXPIRED for flags not sent because too old
+                cursor.execute('''
+                    UPDATE flags
+                    SET server_response = ?
+                    WHERE time < ?
+                    ''', (current_app.config['DB_EXP'], expiration_time))
                 database.commit()
             except requests.exceptions.RequestException:
                 logger.error('Could not send the flags to the server, retrying...')

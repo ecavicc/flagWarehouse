@@ -6,9 +6,9 @@ PORT = 8000
 
 
 class ServerHandler(http.server.BaseHTTPRequestHandler):
-    def do_POST(self):
+    def do_PUT(self):
         body = random.choices(
-            population=['accepted\n', 'error\n'],
+            population=['accepted\n', 'invalid\n', 'too old', 'is not available'],
             weights=(1, 0.1),
             k=1
         )[0]

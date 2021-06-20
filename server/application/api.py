@@ -22,7 +22,7 @@ def get_config():
 def upload_flags():
     data = request.get_json()
     username = data.get('username')
-    current_app.logger.debug(f"{len(data.get('flags'))} flags received from user {username}")
+    # current_app.logger.debug(f"{len(data.get('flags'))} flags received from user {username}")
     rows = []
     for item in data.get('flags'):
         rows.append((item.get('flag'), username, item.get('exploit_name'), item.get('team_ip'), item.get('time'),
