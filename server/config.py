@@ -9,13 +9,14 @@ class Config(object):
 
     ROUND_DURATION = 120
     FLAG_ALIVE = 5 * ROUND_DURATION
-    FLAG_FORMAT = r'/^[A-Z0-9]{31}=$/'
+    FLAG_FORMAT = r'[A-Z0-9]{31}='
 
-    SUB_LIMIT = 10
-    SUB_INTERVAL = 1
+    SUB_LIMIT = 1
+    SUB_INTERVAL = 2
+    SUB_PAYLOAD_SIZE = 100
     SUB_URL = 'http://10.1.0.2/flags'
     SUB_ACCEPTED = 'accepted'
-    SUB_ERROR = 'error'
+    SUB_ERROR = 'too old'
 
     DB_NSUB = 'NOT_SUBMITTED'
     DB_SUB = 'SUBMITTED'

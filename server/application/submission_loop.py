@@ -1,6 +1,8 @@
+import logging
 import time
 from datetime import datetime, timedelta
 from queue import Queue
+import json
 
 import requests
 from flask import Flask, current_app
@@ -50,31 +52,43 @@ def loop(app: Flask):
             i = 0
             queue_length = queue.qsize()
             try:
+                # Send N requests per interval
                 while i < min(current_app.config['SUB_LIMIT'], queue_length):
-                    # TODO: make it better, just for testing
+                    # Send N flags per request
                     flags = []
-                    for _ in range(100):
+                    for _ in range(min(current_app.config['SUB_PAYLOAD_SIZE'], queue_length)):
                         flags.append(queue.get())
+
                     res = requests.put(current_app.config['SUB_URL'],
-                                       headers={'X-Team_Token': current_app.config['TEAM_TOKEN']},
-                                       json=flags).text
+                                       headers={'X-Team-Token': current_app.config['TEAM_TOKEN']},
+                                       json=flags)
+                    j_res = []
+
+                    # Check if the gameserver sent a response about the flags or if it sent an error
+                    if res.headers['Content-Type'] == 'application/json; charset=utf-8':
+                        j_res = json.loads(res.text)
+                    else:
+                        logger.error(f'Received this response from the gameserver:\n\n{res.text}\n')
+                        continue
+
                     # executemany() would be better, but it's fine like this.
-                    if current_app.config['SUB_ERROR'] in res.lower():
-                        cursor.execute('''
-                        UPDATE flags
-                        SET status = ?, server_response = ?
-                        WHERE flag = ?
-                        ''', (current_app.config['DB_SUB'], current_app.config['DB_ERR'], flag))
-                    elif current_app.config['SUB_ACCEPTED'] in res.lower():
-                        cursor.execute('''
-                        UPDATE flags
-                        SET status = ?, server_response = ?
-                        WHERE flag = ?
-                        ''', (current_app.config['DB_SUB'], current_app.config['DB_SUCC'], flag))
-                    i += 1
+                    for item in j_res:
+                        if current_app.config['SUB_ERROR'].lower() in item['msg'].lower():
+                            cursor.execute('''
+                            UPDATE flags
+                            SET status = ?, server_response = ?
+                            WHERE flag = ?
+                            ''', (current_app.config['DB_SUB'], current_app.config['DB_ERR'], item['flag']))
+                        elif current_app.config['SUB_ACCEPTED'].lower() in item['msg'].lower():
+                            cursor.execute('''
+                            UPDATE flags
+                            SET status = ?, server_response = ?
+                            WHERE flag = ?
+                            ''', (current_app.config['DB_SUB'], current_app.config['DB_SUCC'], item['flag']))
+                        i += 1
                 database.commit()
             except requests.exceptions.RequestException:
-                logger.error('could not send the flags to the server, retrying...')
+                logger.error('Could not send the flags to the server, retrying...')
             finally:
                 duration = time.time() - s_time
                 if duration < current_app.config['SUB_INTERVAL']:
