@@ -30,6 +30,6 @@ class Config(object):
     DB_ERR = 'ERROR'
     DB_EXP = 'EXPIRED'
 
-    SECRET_KEY = 'dev'
+    SECRET_KEY = 'changeme'
 
     DATABASE = 'instance/flagWarehouse.sqlite'

@@ -75,11 +75,11 @@ def chart_data():
             SELECT
                 SUM(server_response LIKE 'SUCCESS') as accepted,
                 SUM(server_response LIKE 'ERROR') as error,
-                SUM(status LIKE 'NOT_SUBMITTED' AND time >= ?) AS queued,
+                SUM(status LIKE 'NOT_SUBMITTED' AND server_response IS NULL) AS queued,
                 SUM(server_response LIKE 'EXPIRED') AS expired
             FROM flags
             WHERE time >= ?;
-            ''', (expiration_s, start_s)
+            ''', (start_s,)
                     )
         doughnut_row = cur.fetchone()
         cur.execute('''
@@ -181,7 +181,7 @@ def explore():
 
     return render_template('explore.html', exploits_names=exploits_names, usernames=usernames, team_ips=team_ips,
                            statuses=[current_app.config['DB_SUB'], current_app.config['DB_NSUB']],
-                           responses=[current_app.config['DB_SUCC'], current_app.config['DB_ERR']],
+                           responses=[current_app.config['DB_SUCC'], current_app.config['DB_ERR'], current_app.config['DB_EXP']],
                            db_nsub=current_app.config['DB_NSUB'])
 
 

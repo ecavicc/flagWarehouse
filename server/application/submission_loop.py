@@ -95,16 +95,16 @@ def loop(app: Flask):
                             WHERE flag = ?
                             ''', (current_app.config['DB_SUB'], current_app.config['DB_SUCC'], item['flag']))
                         i += 1
-                # At the end, update status as EXPIRED for flags not sent because too old
-                cursor.execute('''
-                    UPDATE flags
-                    SET server_response = ?
-                    WHERE time < ?
-                    ''', (current_app.config['DB_EXP'], expiration_time))
-                database.commit()
             except requests.exceptions.RequestException:
                 logger.error('Could not send the flags to the server, retrying...')
             finally:
+                # At the end, update status as EXPIRED for flags not sent because too old
+                cursor.execute('''
+                                    UPDATE flags
+                                    SET server_response = ?
+                                    WHERE status LIKE 'NOT_SUBMITTED' AND time <= ?
+                                    ''', (current_app.config['DB_EXP'], expiration_time))
+                database.commit()
                 duration = time.time() - s_time
                 if duration < current_app.config['SUB_INTERVAL']:
                     time.sleep(current_app.config['SUB_INTERVAL'] - duration)

@@ -102,7 +102,7 @@
     </div>
 {% endblock %}
 {% block scripts %}
-    <script>
+    <!-- <script>
         $('#status_select').on('change', function () {
             if ($('#status_select').val() === '{{ db_nsub }}') {
                 $('#response_select').val('');
@@ -111,7 +111,7 @@
                 $('#response_select').prop('disabled', false);
             }
         });
-    </script>
+    </script> -->
     <script src="{{ url_for('static', filename='js/fontawesome.all.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap-table.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/explore.js') }}"></script>
